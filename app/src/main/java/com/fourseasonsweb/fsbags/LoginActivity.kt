@@ -27,7 +27,9 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
      * Keep track of the login task to ensure we can cancel it if requested.
      */
     private val RC_SIGN_IN = 9001
-    private var mGoogleSignInClient: GoogleSignInClient? = null
+    companion object {
+        var mGoogleSignInClient: GoogleSignInClient? = null
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +73,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
 
             //закрыть окно логина и открыть главное окно
             val intent = Intent(this, MainActivity::class.java)
+            MainActivity.userName = account!!.email
             finish()
             startActivity(intent)
 
