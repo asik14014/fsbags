@@ -1,5 +1,6 @@
 package com.fourseasonsweb.fsbags
 
+import android.arch.persistence.room.Room
 import android.content.Intent
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -11,9 +12,16 @@ import android.view.Menu
 import android.view.MenuItem
 import com.fourseasonsweb.fsbags.adapter.ProductsAdapter
 import com.fourseasonsweb.fsbags.data.Product
+import com.fourseasonsweb.fsbags.data.room.BagsDatabase
+import com.fourseasonsweb.fsbags.data.room.models.ProductEntity
 import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
+
+    companion object {
+        var database: BagsDatabase? = null
+        var userName: String? = ""
+    }
 
     private var recyclerView: RecyclerView? = null
     private var adapter: ProductsAdapter? = null
@@ -33,6 +41,11 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun init() {
+        MainActivity.database =  Room.databaseBuilder(this,BagsDatabase::class.java,"bagsDatabase")
+            .allowMainThreadQueries()
+            .fallbackToDestructiveMigration()
+            .build()
+
         recyclerView = findViewById(R.id.recycler_view) as RecyclerView
 
         productList = ArrayList()
@@ -74,37 +87,25 @@ class MainActivity : AppCompatActivity() {
             R.drawable.album10,
             R.drawable.album11
         )*/
-        val covers = intArrayOf(1,2,3,4,5,6,7,8,9,10,11)
+        val covers = intArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
 
-        var a = Product(0, "True Romance", "", covers[0])
-        productList.add(a)
+        MainActivity.database!!.productDao().insert(ProductEntity(1, "True Romance", "", 10.0, covers[0]))
+        MainActivity.database!!.productDao().insert(ProductEntity(2, "Xscpae", "", 10.0, covers[1]))
+        MainActivity.database!!.productDao().insert(ProductEntity(3, "Maroon 5", "", 10.0, covers[2]))
+        MainActivity.database!!.productDao().insert(ProductEntity(4, "Born to Die", "", 10.0, covers[3]))
+        MainActivity.database!!.productDao().insert(ProductEntity(5, "Honeymoon", "", 10.0, covers[4]))
+        MainActivity.database!!.productDao().insert(ProductEntity(6, "I Need a Doctor", "", 10.0, covers[5]))
+        MainActivity.database!!.productDao().insert(ProductEntity(7, "Loud", "", 10.0, covers[6]))
+        MainActivity.database!!.productDao().insert(ProductEntity(8, "Legend", "", 10.0, covers[7]))
+        MainActivity.database!!.productDao().insert(ProductEntity(9, "Hello", "", 10.0, covers[8]))
+        MainActivity.database!!.productDao().insert(ProductEntity(10, "Greatest Hits", "", 10.0, covers[9]))
+        MainActivity.database!!.productDao().insert(ProductEntity(11, "True Romance", "", 10.0, covers[10]))
+        MainActivity.database!!.productDao().insert(ProductEntity(12, "True Romance", "", 10.0, covers[11]))
 
-        a = Product(1, "Xscpae", "", covers[1])
-        productList.add(a)
-
-        a = Product(2, "Maroon 5", "", covers[2])
-        productList.add(a)
-
-        a = Product(3, "Born to Die", "", covers[3])
-        productList.add(a)
-
-        a = Product(4, "Honeymoon", "", covers[4])
-        productList.add(a)
-
-        a = Product(5, "I Need a Doctor", "", covers[5])
-        productList.add(a)
-
-        a = Product(6, "Loud", "", covers[6])
-        productList.add(a)
-
-        a = Product(7, "Legend", "", covers[7])
-        productList.add(a)
-
-        a = Product(8, "Hello", "", covers[8])
-        productList.add(a)
-
-        a = Product(9, "Greatest Hits", "", covers[9])
-        productList.add(a)
+        for (item in MainActivity.database!!.productDao().getAllProducts())
+        {
+            productList.add(Product(item.Id, item.Name, item.Description, item.Image, item.price))
+        }
 
         adapter!!.notifyDataSetChanged()
     }
@@ -125,8 +126,12 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             R.id.action_logout -> {
-                val intent = Intent(this, LoginActivity::class.java)
-                startActivity(intent)
+                LoginActivity.mGoogleSignInClient!!.signOut()
+                    .addOnCompleteListener(this) {
+                        val intent = Intent(this, LoginActivity::class.java)
+                        finish()
+                        startActivity(intent)
+                    }
                 true
             }
             else -> super.onOptionsItemSelected(item)

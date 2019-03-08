@@ -1,9 +1,10 @@
 package com.fourseasonsweb.fsbags.data
 
-class Product(_id: Int, _name: String, _description: String, _image: Int) {
+class Product(_id: Int, _name: String, _description: String, _image: Int, _price: Double) {
     private var id: Int = 0
     private var name: String = ""
     private var description: String = ""
+    private var price: Double = 0.0
     private var image: Int = 0
 
     init {
@@ -11,6 +12,7 @@ class Product(_id: Int, _name: String, _description: String, _image: Int) {
         name = _name
         description = _description
         image = _image
+        price = _price
     }
 
     fun getId() : Int {
@@ -35,5 +37,13 @@ class Product(_id: Int, _name: String, _description: String, _image: Int) {
 
     fun setDescription(value: String) {
         description = value
+    }
+
+    fun getPrice() : Double {
+        return price
+    }
+
+    fun setPrice(value: Double) {
+        price = value
     }
 }
