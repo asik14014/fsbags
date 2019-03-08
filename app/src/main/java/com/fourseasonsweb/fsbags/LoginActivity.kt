@@ -80,11 +80,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             updateUI(null)
         }
 
-        //временно
-        val intent = Intent(this, MainActivity::class.java)
-        finish()
-        startActivity(intent)
-
     }
 
     private fun signIn() {

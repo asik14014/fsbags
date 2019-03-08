@@ -4,9 +4,9 @@
       xmlns:tools="http://schemas.android.com/tools">
     <item   android:id="@+id/action_add_favourite"
             android:orderInCategory="100"
-            android:title="@string/action_add_favourite" />
+            android:title="@string/action_add_cart" />
 
     <item   android:id="@+id/action_play_next"
             android:orderInCategory="101"
-            android:title="@string/action_play_next" />
+            android:title="@string/action_open" />
 </menu>
