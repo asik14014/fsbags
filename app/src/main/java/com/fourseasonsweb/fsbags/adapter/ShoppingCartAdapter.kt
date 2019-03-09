@@ -44,13 +44,16 @@ class ShoppingCartAdapter(private var mContext: Context, private var productList
         val product = productList[position]
         holder.name.text = product.getName()
         holder.price.text = "Цена: ${product.getPrice()}"
+
+        //Устанавливаем картинку
         Glide.with(mContext).load(product.getImage()).into(holder.thumbnail)
 
+        //Событие при нажатии на три кнопки
         holder.overflow.setOnClickListener { showPopupMenu(holder.overflow, product) }
     }
 
     /**
-     * Showing popup menu when tapping on 3 dots
+     * Показать popup menu при нажатии на три точки
      */
     private fun showPopupMenu(view: View, product: Product) {
         // inflate menu
@@ -62,17 +65,19 @@ class ShoppingCartAdapter(private var mContext: Context, private var productList
     }
 
     /**
-     * Click listener for popup menu items
+     * Listener для трех точек
      */
     internal inner class MyMenuItemClickListener(private var product: Product) : PopupMenu.OnMenuItemClickListener {
         override fun onMenuItemClick(menuItem: MenuItem): Boolean {
             when (menuItem.itemId) {
+                //Открыть продукт
                 R.id.action_open_product -> {
                     val intent = Intent(mContext, ProductActivity::class.java)
                     intent.putExtra("productId", product.getId())
                     mContext.startActivity(intent)
                     return true
                 }
+                //Удалить из корзины
                 R.id.action_delete -> {
                     val userName = MainActivity.userName!!
                     MainActivity.database!!.cartDao().deleteByProductAndUser(product.getId(), userName)

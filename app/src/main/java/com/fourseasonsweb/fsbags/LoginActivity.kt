@@ -18,18 +18,13 @@ import com.google.android.gms.tasks.Task
 import kotlinx.android.synthetic.main.activity_login.*
 import java.util.*
 
-/**
- * A login screen that offers login via email/password.
- */
 class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
     override fun onLoaderReset(p0: Loader<Cursor>?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        TODO("not implemented")
     }
 
-    /**
-     * Keep track of the login task to ensure we can cancel it if requested.
-     */
     private val RC_SIGN_IN = 9001
+    //Статический объект, для возможности вызова из MainActivity (используем логаут)
     companion object {
         var mGoogleSignInClient: GoogleSignInClient? = null
     }
@@ -44,6 +39,9 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         initialize()
     }
 
+    /**
+    Инициализация GoogleSignClient
+     */
     private fun initialize() {
         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
             .requestEmail()
@@ -59,17 +57,21 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
         updateUI(account)
     }
 
+    /**
+    Результат выбора аккаунта
+     */
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (requestCode == RC_SIGN_IN) {
-            // The Task returned from this call is always completed, no need to attach
-            // a listener.
             val task = GoogleSignIn.getSignedInAccountFromIntent(data)
             handleSignInResult(task)
         }
     }
 
+    /**
+    Обработка результата входа
+     */
     private fun handleSignInResult(completedTask: Task<GoogleSignInAccount>) {
         try {
             val account = completedTask.getResult(ApiException::class.java)
@@ -82,18 +84,22 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             startActivity(intent)
 
         } catch (e: ApiException) {
-            // The ApiException status code indicates the detailed failure reason.
-            // Please refer to the GoogleSignInStatusCodes class reference for more information.
             updateUI(null)
         }
 
     }
 
+    /**
+    Вход
+     */
     private fun signIn() {
         val signInIntent = mGoogleSignInClient!!.getSignInIntent()
         startActivityForResult(signInIntent, RC_SIGN_IN)
     }
 
+    /**
+    Выход
+     */
     private fun signOut() {
         mGoogleSignInClient!!.signOut()
             .addOnCompleteListener(this) {

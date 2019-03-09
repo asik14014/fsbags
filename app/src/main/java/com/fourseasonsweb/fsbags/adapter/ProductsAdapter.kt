@@ -51,13 +51,13 @@ class ProductsAdapter(private val mContext: Context, private val productList: Li
         holder.title.setText(product.getName())
         holder.count.setText(description)
 
-        //раскоментировать
         Glide.with(mContext)
             .load(product.getImage())
             .override(100, 100)
             //.centerCrop()
             .into(holder.thumbnail)
 
+        //Устанавливаем событие для картинки с тремя точками
         holder.overflow.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View) {
                 showPopupMenu(holder.overflow, product)
@@ -66,7 +66,7 @@ class ProductsAdapter(private val mContext: Context, private val productList: Li
     }
 
     /**
-     * Showing popup menu when tapping on 3 dots
+     * Показать popup menu при нажатии на три точки
      */
     private fun showPopupMenu(view: View, product: Product) {
         // inflate menu
@@ -78,18 +78,20 @@ class ProductsAdapter(private val mContext: Context, private val productList: Li
     }
 
     /**
-     * Click listener for popup menu items
+     * Listener для картинки с тремя точками
      */
     internal inner class MyMenuItemClickListener(private var product: Product) : PopupMenu.OnMenuItemClickListener {
 
         override fun onMenuItemClick(menuItem: MenuItem): Boolean {
             when (menuItem.itemId) {
+                //Добавить в корзину
                 R.id.action_add_favourite -> {
                     val userName: String = MainActivity.userName!!
                     MainActivity.database!!.cartDao().insert(CartEntity(0, product.getId(), userName, Date()))
                     Toast.makeText(mContext, "Added to shopping cart", Toast.LENGTH_SHORT).show()
                     return true
                 }
+                //Открыть товар
                 R.id.action_play_next -> {
                     val intent = Intent(mContext, ProductActivity::class.java)
                     intent.putExtra("productId", product.getId().toString())
