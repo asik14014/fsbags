@@ -9,7 +9,6 @@ import android.net.Uri
 import android.os.Bundle
 import android.provider.ContactsContract
 import android.support.v7.app.AppCompatActivity
-import android.widget.ArrayAdapter
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount
 import com.google.android.gms.auth.api.signin.GoogleSignInClient
@@ -23,6 +22,10 @@ import java.util.*
  * A login screen that offers login via email/password.
  */
 class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
+    override fun onLoaderReset(p0: Loader<Cursor>?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     /**
      * Keep track of the login task to ensure we can cancel it if requested.
      */
@@ -74,6 +77,7 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             //закрыть окно логина и открыть главное окно
             val intent = Intent(this, MainActivity::class.java)
             MainActivity.userName = account!!.email
+            MainActivity.FLName = account.displayName
             finish()
             startActivity(intent)
 
@@ -143,22 +147,6 @@ class LoginActivity : AppCompatActivity(), LoaderCallbacks<Cursor> {
             emails.add(cursor.getString(ProfileQuery.ADDRESS))
             cursor.moveToNext()
         }
-
-        addEmailsToAutoComplete(emails)
-    }
-
-    override fun onLoaderReset(cursorLoader: Loader<Cursor>) {
-
-    }
-
-    private fun addEmailsToAutoComplete(emailAddressCollection: List<String>) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        val adapter = ArrayAdapter(
-            this@LoginActivity,
-            android.R.layout.simple_dropdown_item_1line, emailAddressCollection
-        )
-
-        email.setAdapter(adapter)
     }
 
     object ProfileQuery {

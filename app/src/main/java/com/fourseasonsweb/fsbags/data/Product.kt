@@ -46,4 +46,12 @@ class Product(_id: Int, _name: String, _description: String, _image: Int, _price
     fun setPrice(value: Double) {
         price = value
     }
+
+    fun getImage() : Int {
+        return image
+    }
+
+    fun setImage(value: Int) {
+        image = value
+    }
 }

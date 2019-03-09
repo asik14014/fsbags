@@ -11,9 +11,13 @@ import android.widget.ImageView
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
+import com.bumptech.glide.Glide
+import com.fourseasonsweb.fsbags.MainActivity
+import com.fourseasonsweb.fsbags.ProductActivity
 import com.fourseasonsweb.fsbags.R
-import com.fourseasonsweb.fsbags.ShoppingCartActivity
 import com.fourseasonsweb.fsbags.data.Product
+import com.fourseasonsweb.fsbags.data.room.models.CartEntity
+import java.util.*
 
 class ProductsAdapter(private val mContext: Context, private val productList: List<Product>) :
     RecyclerView.Adapter<ProductsAdapter.MyViewHolder>() {
@@ -41,15 +45,22 @@ class ProductsAdapter(private val mContext: Context, private val productList: Li
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val product = productList[position]
+        var description = product.getDescription()
+        if (description.length > 50) description = description.substring(0, 50) + "..."
+
         holder.title.setText(product.getName())
-        holder.count.setText(product.getDescription())
+        holder.count.setText(description)
 
         //раскоментировать
-        //Glide.with(mContext).load(product.getThumbnail()).into(holder.thumbnail)
+        Glide.with(mContext)
+            .load(product.getImage())
+            .override(100, 100)
+            //.centerCrop()
+            .into(holder.thumbnail)
 
         holder.overflow.setOnClickListener(object : View.OnClickListener {
             override fun onClick(view: View) {
-                showPopupMenu(holder.overflow)
+                showPopupMenu(holder.overflow, product)
             }
         })
     }
@@ -57,33 +68,32 @@ class ProductsAdapter(private val mContext: Context, private val productList: Li
     /**
      * Showing popup menu when tapping on 3 dots
      */
-    private fun showPopupMenu(view: View) {
+    private fun showPopupMenu(view: View, product: Product) {
         // inflate menu
         val popup = PopupMenu(mContext, view)
         val inflater = popup.getMenuInflater()
         inflater.inflate(R.menu.menu_product, popup.getMenu())
-        popup.setOnMenuItemClickListener(MyMenuItemClickListener())
+        popup.setOnMenuItemClickListener(MyMenuItemClickListener(product))
         popup.show()
     }
 
     /**
      * Click listener for popup menu items
      */
-    internal inner class MyMenuItemClickListener : PopupMenu.OnMenuItemClickListener {
+    internal inner class MyMenuItemClickListener(private var product: Product) : PopupMenu.OnMenuItemClickListener {
 
         override fun onMenuItemClick(menuItem: MenuItem): Boolean {
-            when (menuItem.getItemId()) {
+            when (menuItem.itemId) {
                 R.id.action_add_favourite -> {
+                    val userName: String = MainActivity.userName!!
+                    MainActivity.database!!.cartDao().insert(CartEntity(0, product.getId(), userName, Date()))
                     Toast.makeText(mContext, "Added to shopping cart", Toast.LENGTH_SHORT).show()
-                    //добавить в базу
                     return true
                 }
                 R.id.action_play_next -> {
-                    Toast.makeText(mContext, "Open product", Toast.LENGTH_SHORT).show()
-
-                    val intent = Intent(mContext, ShoppingCartActivity::class.java)
+                    val intent = Intent(mContext, ProductActivity::class.java)
+                    intent.putExtra("productId", product.getId().toString())
                     mContext.startActivity(intent)
-
                     return true
                 }
             }

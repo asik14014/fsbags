@@ -3,6 +3,9 @@ package com.fourseasonsweb.fsbags
 import android.arch.persistence.room.Room
 import android.content.Intent
 import android.os.Bundle
+import android.support.design.widget.NavigationView
+import android.support.v4.view.GravityCompat
+import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.DefaultItemAnimator
 import android.support.v7.widget.GridLayoutManager
@@ -10,17 +13,20 @@ import android.support.v7.widget.RecyclerView
 import android.util.TypedValue
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import com.fourseasonsweb.fsbags.adapter.ProductsAdapter
 import com.fourseasonsweb.fsbags.data.Product
 import com.fourseasonsweb.fsbags.data.room.BagsDatabase
 import com.fourseasonsweb.fsbags.data.room.models.ProductEntity
 import kotlinx.android.synthetic.main.activity_main.*
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
     companion object {
         var database: BagsDatabase? = null
         var userName: String? = ""
+        var FLName: String? =""
     }
 
     private var recyclerView: RecyclerView? = null
@@ -36,6 +42,12 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, ShoppingCartActivity::class.java)
             startActivity(intent)
         }
+
+        nav_view.setNavigationItemSelectedListener(this)
+        val toggle = ActionBarDrawerToggle(
+            this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
+        drawer_layout.addDrawerListener(toggle)
+        toggle.syncState()
 
         init()
     }
@@ -58,13 +70,14 @@ class MainActivity : AppCompatActivity() {
         recyclerView!!.adapter = adapter
 
         prepareProducts()
+        setHeaderInfo(FLName!!)
+    }
 
-        try {
-            //Glide.with(this).load(R.drawable.cover).into(findViewById(R.id.backdrop) as ImageView)
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-
+    private fun setHeaderInfo(name: String) {
+        val navigationView = findViewById<View>(R.id.nav_view) as NavigationView
+        val hView = navigationView.getHeaderView(0)
+        val navUser = hView.findViewById(R.id.tv_headerInfo) as TextView
+        navUser.text = name
     }
 
     private fun dpToPx(dp: Int): Int {
@@ -87,9 +100,24 @@ class MainActivity : AppCompatActivity() {
             R.drawable.album10,
             R.drawable.album11
         )*/
-        val covers = intArrayOf(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15)
+        val covers = intArrayOf(R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada,
+            R.drawable.ic_prada)
 
-        MainActivity.database!!.productDao().insert(ProductEntity(1, "True Romance", "", 10.0, covers[0]))
+        MainActivity.database!!.productDao().insert(ProductEntity(1, "Prada Milano", "Новинка!\uD83D\uDE0D\n" +
+                "Стильная и удобная женская сумка среднего размера. Держит форму. Имеет три отделения, центральное закрывается на молнию, боковые на магнитных кнопках. Внутри центрального отделения карман на молнии и два открытых кармана для телефона и мелких вещей. Подкладка - шелковая, с фирменным логотипом. Снаружи на обратной стороне сумки карман на молнии. Носится на сгибе руки. Высота ручек - 7 см. В комплекте регулируемый плечевой ремень. На дне есть металлические ножки.❤", 10.0, covers[0]))
         MainActivity.database!!.productDao().insert(ProductEntity(2, "Xscpae", "", 10.0, covers[1]))
         MainActivity.database!!.productDao().insert(ProductEntity(3, "Maroon 5", "", 10.0, covers[2]))
         MainActivity.database!!.productDao().insert(ProductEntity(4, "Born to Die", "", 10.0, covers[3]))
@@ -135,6 +163,34 @@ class MainActivity : AppCompatActivity() {
                 true
             }
             else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        // Handle navigation view item clicks here.
+        when (item.itemId) {
+            R.id.nav_addcard -> {
+                val intent = Intent(this, ShoppingCartActivity::class.java)
+                startActivity(intent)
+            }
+
+            R.id.nav_share -> {
+
+            }
+            R.id.nav_send -> {
+
+            }
+        }
+
+        drawer_layout.closeDrawer(GravityCompat.START)
+        return true
+    }
+
+    override fun onBackPressed() {
+        if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
+            drawer_layout.closeDrawer(GravityCompat.START)
+        } else {
+            super.onBackPressed()
         }
     }
 }

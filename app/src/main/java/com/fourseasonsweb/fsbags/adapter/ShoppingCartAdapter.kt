@@ -1,40 +1,89 @@
 package com.fourseasonsweb.fsbags.adapter
 
 import android.content.Context
+import android.content.Intent
+import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
-import android.widget.BaseAdapter
+import android.widget.ImageView
+import android.widget.PopupMenu
+import android.widget.TextView
+import com.bumptech.glide.Glide
+import com.fourseasonsweb.fsbags.MainActivity
+import com.fourseasonsweb.fsbags.ProductActivity
 import com.fourseasonsweb.fsbags.R
 import com.fourseasonsweb.fsbags.data.Product
-import kotlinx.android.synthetic.main.product_item.view.*
 
-class ShoppingCartAdapter(context: Context, private var productList: ArrayList<Product>)
-    : BaseAdapter() {
+class ShoppingCartAdapter(private var mContext: Context, private var productList: ArrayList<Product>)
+    : RecyclerView.Adapter<ShoppingCartAdapter.MyViewHolder>() {
 
-    private var context: Context? = context
+    inner class MyViewHolder(view: View) : RecyclerView.ViewHolder(view) {
+        var name: TextView
+        var price: TextView
+        var thumbnail: ImageView
+        var overflow: ImageView
 
-    override fun getView(position: Int, convertView: View?, parent: ViewGroup?): View {
+        init {
+            name = view.findViewById(R.id.tv_name)
+            price = view.findViewById(R.id.tv_price)
+            thumbnail = view.findViewById(R.id.iv_thumbnail) as ImageView
+            overflow = view.findViewById(R.id.iv_overflow) as ImageView
+        }
+    }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
+        val itemView = LayoutInflater.from(parent.context)
+            .inflate(R.layout.product_item, parent, false)
+
+        return MyViewHolder(itemView)
+    }
+
+    override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
         val product = productList[position]
-        val inflator = context!!.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val productView = inflator.inflate(R.layout.product_item, null)
+        holder.name.text = product.getName()
+        holder.price.text = "Цена: ${product.getPrice()}"
+        Glide.with(mContext).load(product.getImage()).into(holder.thumbnail)
 
-        //set Info
-        productView.tv_name.text = product.getName()
-        productView.tv_price.text = "Цена: ${product.getPrice()}"
-
-        return productView
+        holder.overflow.setOnClickListener { showPopupMenu(holder.overflow, product) }
     }
 
-    override fun getItem(position: Int): Any {
-        return  productList[position]
+    /**
+     * Showing popup menu when tapping on 3 dots
+     */
+    private fun showPopupMenu(view: View, product: Product) {
+        // inflate menu
+        val popup = PopupMenu(mContext, view)
+        val inflater = popup.menuInflater
+        inflater.inflate(R.menu.menu_cart_product, popup.menu)
+        popup.setOnMenuItemClickListener(MyMenuItemClickListener(product))
+        popup.show()
     }
 
-    override fun getItemId(position: Int): Long {
-        return position.toLong()
+    /**
+     * Click listener for popup menu items
+     */
+    internal inner class MyMenuItemClickListener(private var product: Product) : PopupMenu.OnMenuItemClickListener {
+        override fun onMenuItemClick(menuItem: MenuItem): Boolean {
+            when (menuItem.itemId) {
+                R.id.action_open_product -> {
+                    val intent = Intent(mContext, ProductActivity::class.java)
+                    intent.putExtra("productId", product.getId())
+                    mContext.startActivity(intent)
+                    return true
+                }
+                R.id.action_delete -> {
+                    val userName = MainActivity.userName!!
+                    MainActivity.database!!.cartDao().deleteByProductAndUser(product.getId(), userName)
+                    return true
+                }
+            }
+            return false
+        }
     }
 
-    override fun getCount(): Int {
+    override fun getItemCount(): Int {
         return productList.size
     }
 }
